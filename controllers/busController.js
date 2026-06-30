@@ -1,19 +1,20 @@
 const Bus=require("../models/Bus");
 const { Op } = require("sequelize");
 
-// Create Bus
+// insert bus
 const createBus=async(req,res)=>{
 
     try{
-
         const bus=await Bus.create(req.body);
 
-        res.status(201).json(bus);
-
+        res.status(201).json({
+            message:"Bus added successfully",
+            bus,
+        });
     }catch(err){
-
-        res.status(500).json({message:err.message});
-
+        res.status(500).json({
+            message:err.message
+        });
     }
 
 };
@@ -28,10 +29,10 @@ const getAvailableBuses=async(req,res)=>{
             where:{
 
                 availableSeats:{
-                    [Op.gt]:req.params.seats
-                }
+                    [Op.gt]:req.params.seats,
+                },
 
-            }
+            },
 
         });
 
@@ -45,4 +46,73 @@ const getAvailableBuses=async(req,res)=>{
 
 };
 
-module.exports={createBus,getAvailableBuses};
+//read findbypk
+
+const getBusById=async(req,res)=>{
+    try{
+        const bus=await Bus.findByPk(req.params.id);
+
+        if(!bus){
+            return res.status(404).json({
+                message:"Bus not found",
+            });
+        }
+        res.json(bus);
+    }catch(err){
+         res.status(500).json({
+            message:err.message,
+         });
+    }
+};
+
+//update
+
+const updateBus=async (req,res)=>{
+    try{
+        const bus=await Bus.findByPk(req.params.id);
+        if(!bus){
+            return res.status(404).json({
+                message:"Bus not found",
+            });
+        }
+        await bus.update(req.body);
+        res.json({
+            message:"Bus updated successfully",
+            bus,
+        });
+        
+        
+    }catch(err){
+        res.status(500).json({
+            message:err.message,
+        });
+    }
+};
+
+//delete
+const deleteBus=async (req,res)=>{
+    try{
+        const bus=await Bus.findByPk(req.params.id);
+        if(!bus){
+            return res.status(404).json({
+                message:"Bus not found",
+            });
+        }
+        await bus.destroy();
+        res.json({
+            message:"Bus deleted successfully",
+        });
+    }catch(err){
+        res.status(500).json({
+            message:err.message,
+        });
+    }
+};
+
+module.exports={
+    createBus,
+    getAvailableBuses,
+    getBusById,
+    updateBus,
+    deleteBus
+};
